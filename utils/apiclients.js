@@ -16,9 +16,12 @@ export async function post(url, payload) {
   });
 }
 
-export async function put(url, payload) {
+export async function put(url, payload, token) {
   return await apiContext.put(url, {
     data: payload,
+    headers: {
+      Cookie: `token=${token}`,
+    },
   });
 }
 
