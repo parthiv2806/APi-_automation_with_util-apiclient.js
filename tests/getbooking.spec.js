@@ -10,6 +10,6 @@ test("Get booking", async ({ booking }) => {
 
   const body = await response.json();
 
-  console.log(body);
+  console.log(body,"1");
 
 });
