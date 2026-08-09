@@ -1,20 +1,10 @@
-import { test, expect } from "@playwright/test";
-import { initApiClient } from "../utils/apiclients";
-import { login } from "../services/authServices";
-import { Authpayload } from "../payloads/authpayloads";
-import { setToken } from "../utils/tokenmanager";
-import { getToken } from "../utils/tokenmanager";
+import { test } from "../fixtures/apifixtures";
+import { expect } from "@playwright/test";
 
-test("Login API", async () => {
-  await initApiClient();
+test("Login API", async ({ auth }) => {
 
-  const response = await login(Authpayload);
+  expect(auth.response.status()).toBe(200);
 
-  expect(response.status()).toBe(200);
+  expect(auth.body.token).toBeTruthy();
 
-  const body = await response.json();
-
-  setToken(body.token);
-
-  console.log("Generated Token :", getToken());
 });

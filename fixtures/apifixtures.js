@@ -1,37 +1,60 @@
 import { test as base } from "@playwright/test";
-import { getToken } from "../utils/tokenmanager";
-import { Create_booking } from "../services/createbookingService";
+
+import { getToken, setToken } from "../utils/tokenmanager";
 import { initApiClient } from "../utils/apiclients";
+
+import { login } from "../services/authServices";
+import { Authpayload } from "../payloads/authpayloads";
+
+import { Create_booking } from "../services/createbookingService";
 import { CreateBooking } from "../payloads/createbooking";
+
 export const test = base.extend({
-  // token: async ({ request }, use) => {
-  //   const token = await getToken(request);
-  //   await use(token);
-  // },
-  token: async ({}, use) => {
+
+  // Initialize API client once per worker
+  apiClient: [async ({}, use) => {
+    await initApiClient();
+    await use();
+  }, { scope: "worker" }],
+
+  // Login and generate token
+  auth: [async ({ apiClient }, use) => {
+    const response = await login(Authpayload);
+
+    const body = await response.json();
+
+    setToken(body.token);
+
+    await use({
+      response,
+      body,
+    });
+  }, { scope: "worker" }],
+
+  // Get stored token
+  token: [async ({ auth }, use) => {
     const token = getToken();
+
+    console.log(" Token:", token);
+
     await use(token);
-  },
+  }, { scope: "worker" }],
 
-  booking: [
-    async ({}, use) => {
-      await initApiClient();
+  // Create booking only once per worker
+  booking: [async ({ apiClient }, use) => {
+    const response = await Create_booking(CreateBooking);
 
-      const response = await Create_booking(CreateBooking);
+    const body = await response.json();
 
-      const body = await response.json();
+    const bookingid = body.bookingid;
 
-      const bookingid = body.bookingid;
+    console.log("Created Booking ID:", bookingid);
 
-      console.log("Created Booking ID:", bookingid);
+    await use({
+      response,
+      body,
+      bookingid,
+    });
+  }, { scope: "worker" }],
 
-      await use({
-        response,
-        body,
-        bookingid,
-      });
-    },
-    { scope: "worker" },
-  ],
 });
-//cc
