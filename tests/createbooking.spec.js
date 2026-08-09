@@ -1,23 +1,24 @@
-import { test, expect } from "@playwright/test";
-import { initApiClient } from "../utils/apiclients";
-import { Create_booking } from "../services/createbookingService";
+import { test } from "../fixtures/apifixtures";
 import { CreateBooking } from "../payloads/createbooking";
+import { expect } from "@playwright/test";
+test("Create booking", async ({ booking }) => {
+  expect(booking.response.status()).toBe(200);
 
-test("Create booking", async () => {
-  await initApiClient();
-  const response = await Create_booking(CreateBooking);
-  expect(response.status()).toBe(200);
-  const body = await response.json();
-  console.log(body);
-  expect(body.booking.firstname).toBe(CreateBooking.firstname);
-  expect(body.booking.lastname).toBe(CreateBooking.lastname);
-  expect(body.booking.totalprice).toBe(CreateBooking.totalprice);
-  expect(body.booking.depositpaid).toBe(CreateBooking.depositpaid);
-  expect(body.booking.bookingdates.checkin).toBe(
+  expect(booking.body.booking.firstname).toBe(CreateBooking.firstname);
+
+  expect(booking.body.booking.lastname).toBe(CreateBooking.lastname);
+
+  expect(booking.body.booking.totalprice).toBe(CreateBooking.totalprice);
+
+  expect(booking.body.booking.depositpaid).toBe(CreateBooking.depositpaid);
+
+  expect(booking.body.booking.bookingdates.checkin).toBe(
     CreateBooking.bookingdates.checkin,
   );
-  expect(body.booking.bookingdates.checkout).toBe(
+
+  expect(booking.body.booking.bookingdates.checkout).toBe(
     CreateBooking.bookingdates.checkout,
   );
-  expect(body.booking.additionalneeds).toBe(CreateBooking.additionalneeds);
+
+  console.log("Booking ID:", booking.bookingid);
 });
