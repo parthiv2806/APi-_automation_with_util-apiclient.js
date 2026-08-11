@@ -34,6 +34,10 @@ export async function patch(url, payload, token) {
   });
 }
 
-export async function remove(url) {
-  return await apiContext.delete(url);
+export async function remove(url, token) {
+  return await apiContext.delete(url, {
+    headers: {
+      Cookie: `token=${token}`,
+    },
+  });
 }
